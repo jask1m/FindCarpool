@@ -7,11 +7,11 @@ import { validateEmail } from '../utils';
 
 // create token with user id
 const createToken = (_id: string) => {
-  return jwt.sign({ _id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
+  return jwt.sign({ _id }, process.env.JWT_SECRET as string, { expiresIn: '2h' });
 }
 
 // controller function to register user
-const registerUser = async(req: Request, res: Response): Promise<void> => {
+const registerUser = async (req: Request, res: Response): Promise<void> => {
   const body = req.body;
 
   try {
@@ -22,6 +22,7 @@ const registerUser = async(req: Request, res: Response): Promise<void> => {
     }
 
     if (!validateEmail(body.email)) {
+      console.log("non sjsu email caught.");
       throw Error("Only SJSU email addresses are allowed!");
     }
 
@@ -65,7 +66,7 @@ const registerUser = async(req: Request, res: Response): Promise<void> => {
 }
 
 // controller function to login user
-const loginUser = async(req: Request, res: Response): Promise<void> => {
+const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const login = await User.findOne({
       email: req.body.email,
@@ -83,13 +84,14 @@ const loginUser = async(req: Request, res: Response): Promise<void> => {
     }
 
     const token = createToken(login._id as string);
+    console.log("Token Created: ", token);
 
     res.status(200).json({
       username: login.username,
       email: login.email,
       token: token,
     });
-  } catch(error) {
+  } catch (error) {
     res.status(500).json({ message: "Internal server error. User not logged in." });
   }
 }

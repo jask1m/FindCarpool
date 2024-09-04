@@ -1,18 +1,18 @@
-// Definition of helper functions
+import axios from 'axios';
 
 const getErrorMessage = (error: unknown): string => {
-  let message: string;
-
-  if (error instanceof Error) {
-    message = error.message;
+  if (axios.isAxiosError(error)) {
+    // Handle Axios errors
+    return error.response?.data?.message || error.message || 'An error occurred';
+  } else if (error instanceof Error) {
+    return error.message;
   } else if (error && typeof error === "object" && "message" in error) {
-    message = String(error.message);
+    return String(error.message);
   } else if (typeof error === "string") {
-    message = error;
+    return error;
   } else {
-    message = "An error occurred";
+    return "An unknown error occurred";
   }
-  return message;
 }
 
 export { getErrorMessage };

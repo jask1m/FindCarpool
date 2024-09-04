@@ -1,10 +1,12 @@
 import express, { Express, Request, Response } from 'express';
+import { requireAuth } from './middleware/requireAuth';
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const userRouter = require('./User/userRoute');
+const courseRouter = require('./Course/courseRoute');
 
 const { MONGODB_URL, CLIENT_URL } = process.env;
 const app = express();
@@ -29,13 +31,16 @@ app.listen(port, () => {
 });
 
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: "*",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
 app.use(express.json());
-app.use('/user', userRouter)
+app.use(requireAuth);
+app.use('/user', userRouter);
+app.use('/course', courseRouter);
+
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Hello TypeScript Express Server' });

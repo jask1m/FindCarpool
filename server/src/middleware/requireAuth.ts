@@ -2,6 +2,7 @@ import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import User from '../User/userSchema';
 import { Express } from 'express-serve-static-core';
+import { UNPROTECTED_PATHS } from '../constants';
 
 declare global {
   namespace Express {
@@ -14,7 +15,8 @@ declare global {
 // requireAuth middleware is applied to all routes except the login and register routes
 // to prevent unauthenticated users from accessing protected routes
 const requireAuth = async(req: Request, res: Response, next: NextFunction) => {
-  if (req.path === '/user/login' || req.path === '/user/register') {
+  // check if path is in unprotected paths
+  if (UNPROTECTED_PATHS.includes(req.path)) {
     return next();
   }
   // verify user is authenticated
@@ -25,6 +27,7 @@ const requireAuth = async(req: Request, res: Response, next: NextFunction) => {
   }
 
   const token = authorization.split(' ')[1];
+  console.log("Extracted Token: ", token);
 
   try {
     // verify token

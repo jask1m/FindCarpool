@@ -1,12 +1,12 @@
 import { AuthContextProvider } from './context/AuthContext'
-import { useAuthContext } from './hooks/useAuthContext'
-import './App.css'
+import { Outlet } from 'react-router-dom';
+import Navbar from './components/Navbar';
 
 function App() {
-  const user = useAuthContext();
   return (
     <AuthContextProvider>
-      {user && <p>user here</p>}
+      <Navbar />
+      <Outlet />
     </AuthContextProvider>
   )
 }

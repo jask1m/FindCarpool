@@ -15,7 +15,7 @@ interface AuthState {
 // interface for the dispatch function
 interface Action {
   type: "LOGIN" | "LOGOUT";
-  payload: any;
+  payload?: any;
 }
 
 export interface AuthContextType extends AuthState {
