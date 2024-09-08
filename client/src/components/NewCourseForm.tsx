@@ -2,40 +2,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldValues } from 'react-hook-form';
 import { useAuthContext } from '../hooks/useAuthContext';
 import axios from 'axios';
-import { z } from 'zod';
-
-const courseSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  departureAddress: z.string().nonempty("Address is required"),
-  departureCity: z.string().min(1, "City is required").refine(value => isNaN(Number(value)), {
-    message: "City must be a string, not a number"
-  }),
-  departureZip: z.string()
-    .min(5, "Zipcode must be at least 5 characters")
-    .max(10, "Zipcode cannot be more than 10 characters")
-    .regex(/^\d{5}(-\d{4})?$/, "Invalid US zipcode format"),
-  departureDateTime: z.string().nonempty("Departure date and time is required"),
-  destinationAddress: z.string().nonempty("Address is required"),
-  destinationCity: z.string().min(1, "City is required").refine(value => isNaN(Number(value)), {
-    message: "City must be a string, not a number"
-  }),
-  destinationZip: z.string()
-    .min(5, "Zipcode must be at least 5 characters")
-    .max(10, "Zipcode cannot be more than 10 characters")
-    .regex(/^\d{5}(-\d{4})?$/, "Invalid US zipcode format"),
-  destinationDateTime: z.string().nonempty("Arrival date and time is required"),
-});
-
-type TCourseSchema = z.infer<typeof courseSchema>;
+import { courseSchema, TCourseSchema } from '../lib/types';
 
 export default function NewCourseForm() {
+  type FormData = TCourseSchema & {
+    root?: {
+      serverError: {
+        type: string;
+        message: string;
+      };
+    };
+  }
   const {user} = useAuthContext();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset, 
-  } = useForm<TCourseSchema>({
+    setError
+  } = useForm<FormData>({
     resolver: zodResolver(courseSchema),
   });
   const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -52,18 +37,45 @@ export default function NewCourseForm() {
     try {
       const response = await axios.post(
         `${BASE_URL}/course/create`, formattedData, {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${user?.accessToken}` },
       });
       console.log(response.data);
-    } catch (error) {
-
+      reset();
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        setError("root.serverError", {
+          type: "401",
+          message: "You must be logged in to create a route."
+        });
+      } else {
+        setError("root.serverError", {
+          type: "unknown",
+          message: "An error occurred while creating the route."
+        });
+      }
+      console.log("error creating course: ", error);
     }
     console.log("submitted", formattedData);
-    reset();
   }
+
+  const handleDummy = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/course/dummy`, {
+        withCredentials: true,
+        headers: { 
+          Authorization: `Bearer ${user?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+      });
+      console.log(response.data);
+    } catch (error: any) {
+      console.log("error creating course: ", error);
+  }
+}
 
   return (
     <div className="flex justify-center container mx-auto my-auto w-full items-center">
+      <button onClick={handleDummy}>DUMMY</button>
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-y-4 w-full max-w-md border p-6 bg-white rounded-lg shadow-md'>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Create New Route</h2>
         
@@ -160,6 +172,12 @@ export default function NewCourseForm() {
           />
           {errors.destinationDateTime && <p className='text-red-500 text-sm mt-1'>{`${errors.destinationDateTime.message}`}</p>}
         </div>
+
+        {errors.root?.serverError && (
+          <p className='text-red-500 text-sm mt-1 text-center'>
+            {errors.root.serverError.message}
+          </p>
+        )}
         
         <button 
           disabled={isSubmitting} 

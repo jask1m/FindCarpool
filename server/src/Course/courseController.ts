@@ -36,4 +36,8 @@ const createCourse = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export { createCourse };
+const dummyRoute = async(req: Request, res: Response): Promise<void> => {
+  res.status(200).json({ message: "You're signed in dummy!" });
+}
+
+export { createCourse, dummyRoute };

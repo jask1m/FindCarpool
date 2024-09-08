@@ -13,7 +13,7 @@ const Navbar = () => {
         ) : (
           <>
             <a href="/user/login" className="px-4 py-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition duration-300">Login</a>
-            <a href="/user/signup" className="px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-full transition duration-300">Sign Up</a>
+            <a href="/user/signup" className="px-4 py-2 bg-gray-200 text-black hover:bg-gray-300 rounded-full transition duration-300">Sign Up</a>
           </>
         )}
       </div>

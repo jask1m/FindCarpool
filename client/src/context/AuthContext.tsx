@@ -4,7 +4,7 @@ import { createContext, useReducer, useEffect, Dispatch } from 'react';
 interface User {
   username: string;
   email: string;
-  token: string;
+  accessToken: string;
 }
 
 // interface for the auth state

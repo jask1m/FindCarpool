@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import { requireAuth } from './middleware/requireAuth';
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -31,12 +32,13 @@ app.listen(port, () => {
 });
 
 app.use(cors({
-  origin: "*",
+  origin: CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(requireAuth);
 app.use('/user', userRouter);
 app.use('/course', courseRouter);
