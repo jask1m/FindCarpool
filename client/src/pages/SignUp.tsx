@@ -5,6 +5,7 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { useForm, type FieldValues } from 'react-hook-form';
 import { authSignUpFormSchema, TAuthSignUpFormSchema } from '../lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getErrorMessage } from '../utils/helpers';
 
 type TCredentials = {
   username: string;
@@ -21,6 +22,7 @@ export default function SignUp() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<TAuthSignUpFormSchema>({
     resolver: zodResolver(authSignUpFormSchema)
   });
@@ -40,6 +42,7 @@ export default function SignUp() {
     try {
       const response = await axios.post(
         `${BASE_URL}/user/register`, formattedData, {
+          withCredentials: true,
           headers: {'Content-Type': 'application/json',},
         });
 
@@ -53,7 +56,9 @@ export default function SignUp() {
       );
       console.log('User registered successfully.');
       dispatch({ type: 'LOGIN', payload: response.data });
-    } catch (error) {
+    } catch (error: unknown) {
+      const msg = getErrorMessage(error);
+      setError('root', { type: 'manual', message: msg });
     }
     reset();
   };

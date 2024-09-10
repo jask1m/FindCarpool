@@ -22,11 +22,6 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
       throw Error("User already exists!");
     }
 
-    // TODO: ZOD validation here???
-    if (!body.username || !body.email || !body.password) {
-      throw Error("Credentials not satisfied!");
-    }
-
     if (!validateEmail(body.email)) {
       console.log("non sjsu email caught.");
       throw Error("Only `sjsu.edu` domains allowed!");
@@ -35,7 +30,6 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
     if (!validator.isStrongPassword(body.password)) {
       throw Error("Password is not strong enough!");
     }
-
 
     // generate salt and hash password
     // salt is a random string that is added to the password before hashing
@@ -57,11 +51,13 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
     });
 
     // set refresh token in cookie
+    const refreshDuration = parseDuration(process.env.REFRESH_DURATION as string);
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: parseInt(process.env.REFRESH_DURATION as string) * 1000
+      maxAge: refreshDuration,
+      domain: 'localhost',
     });
 
     res.status(201).json({
@@ -116,7 +112,7 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
       maxAge: refreshDuration,
       domain: 'localhost',
     });
-    
+
     res.status(200).json({
       username: login.username,
       email: login.email,
