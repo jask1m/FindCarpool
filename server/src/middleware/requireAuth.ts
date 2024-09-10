@@ -31,8 +31,6 @@ const requireAuth = async(req: Request, res: Response, next: NextFunction) => {
 
   const accessToken = authorization.split(' ')[1];
   const refreshToken = req.cookies?.refreshToken;
-  console.log("Extracted Access Token: ", accessToken);
-  console.log("Extracted Refresh Token: ", refreshToken);
 
   if (!accessToken) {
     return res.status(401).json({ error: 'Access token required for authorization.'});

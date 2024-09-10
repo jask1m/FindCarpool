@@ -100,9 +100,7 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     const accessToken = createToken(login._id as string);
-    console.log("In the login route, we generated an access token: ", accessToken);
     const refreshToken = jwt.sign({ login: login._id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: process.env.REFRESH_DURATION });
-    console.log("In the login route, we generated a refresh token: ", refreshToken);
     await RefreshToken.create({
       refreshToken,
       user: login._id,
@@ -111,17 +109,14 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // set refresh token in cookie
     const refreshDuration = parseDuration(process.env.REFRESH_DURATION as string);
-    console.log('Refresh duration:', refreshDuration);
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: refreshDuration,
-      // path: '/',
+      domain: 'localhost',
     });
-    console.log('Cookies set:', res.getHeaders()['set-cookie']);
-
-
+    
     res.status(200).json({
       username: login.username,
       email: login.email,
