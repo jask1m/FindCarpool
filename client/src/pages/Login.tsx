@@ -30,8 +30,10 @@ export default function Login() {
     try {
       const response = await axios.post(
         `${BASE_URL}/user/login`,
-        data,
-        { headers: { 'Content-Type': 'application/json' } }
+        data, { 
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json' } 
+        }
       );
 
       const userData = {
