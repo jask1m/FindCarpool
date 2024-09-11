@@ -9,6 +9,7 @@ import { sign } from 'crypto';
 
 // create token with user id
 const createToken = (_id: string) => {
+  console.log(process.env.TOKEN_DURATION);
   return jwt.sign({ _id }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: process.env.TOKEN_DURATION });
 }
 
@@ -47,7 +48,7 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
     await RefreshToken.create({
       refreshToken,
       user: newEntry._id,
-      expires: new Date(Date.now() + parseInt(process.env.REFRESH_DURATION as string) * 1000),
+      expires: new Date(Date.now() + parseDuration(process.env.REFRESH_DURATION as string) * 1000),
     });
 
     // set refresh token in cookie
@@ -100,7 +101,7 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
     await RefreshToken.create({
       refreshToken,
       user: login._id,
-      expires: new Date(Date.now() + parseInt(process.env.REFRESH_DURATION as string) * 1000),
+      expires: new Date(Date.now() + parseDuration(process.env.REFRESH_DURATION as string) * 1000),
     });
 
     // set refresh token in cookie
@@ -155,6 +156,7 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
     }
 
     const newAccessToken = jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: process.env.TOKEN_DURATION });
+    console.log('token refreshed and genereated:', newAccessToken);
 
     // 10. Send the new access token to the client
     res.status(200).json({ accessToken: newAccessToken });

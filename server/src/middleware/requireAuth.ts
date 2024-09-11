@@ -19,8 +19,6 @@ const requireAuth = async(req: Request, res: Response, next: NextFunction) => {
   if (UNPROTECTED_PATHS.includes(req.path)) {
     return next();
   }
-  console.log('Request cookies:', req.cookies);
-  console.log('Request headers:', req.headers);
 
   // verify user is authenticated
   const { authorization } = req.headers;
@@ -54,7 +52,7 @@ const requireAuth = async(req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({ error: 'Invalid or expired refresh token.' });
       }
       const newAccessToken = jwt.sign({ _id: decodedRefreshToken.login }, process.env.ACCESS_TOKEN_SECRET as Secret, { expiresIn: process.env.TOKEN_DURATION });
-      res.setHeader('Authorization', `Bearer ${newAccessToken}`);
+      req.headers['authorization'] = `Bearer ${newAccessToken}`;
       req.user = await User.findOne({ _id: decodedRefreshToken.login }).select("_id");
       return next();
     } catch(error) {
