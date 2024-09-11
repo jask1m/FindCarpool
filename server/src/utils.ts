@@ -1,4 +1,6 @@
 import { UNI_DOMAIN } from "./constants";
+import axios from "axios";
+
 // safety function to check if email address is from SJSU
 export function validateEmail(email: string): boolean {
   const domain = email.split('@')[1];
