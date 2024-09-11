@@ -58,24 +58,8 @@ export default function NewCourseForm() {
     console.log("submitted", formattedData);
   }
 
-  const handleDummy = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/course/dummy`, {
-        withCredentials: true,
-        headers: { 
-          Authorization: `Bearer ${user?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-      });
-      console.log(response.data);
-    } catch (error: any) {
-      console.log("error creating course: ", error);
-  }
-}
-
   return (
     <div className="flex justify-center container mx-auto my-auto w-full items-center">
-      <button onClick={handleDummy}>DUMMY</button>
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-y-4 w-full max-w-md border p-6 bg-white rounded-lg shadow-md'>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Create New Route</h2>
         

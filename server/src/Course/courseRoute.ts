@@ -1,8 +1,7 @@
 import express from 'express';
-import { createCourse, dummyRoute } from './courseController';
+import { createCourse } from './courseController';
 const router = express.Router();
 
 router.post('/create', createCourse);
-router.get('/dummy', dummyRoute);
 
 module.exports = router;
