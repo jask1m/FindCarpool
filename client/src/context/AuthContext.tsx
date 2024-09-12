@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect, Dispatch } from 'react';
+import { createContext, useReducer, useEffect, Dispatch, useState } from 'react';
 
 // User interface
 interface User {
@@ -20,6 +20,7 @@ interface Action {
 
 export interface AuthContextType extends AuthState {
   dispatch: Dispatch<Action>;
+  loading: boolean;
 }
 
 type ChildrenProps = {
@@ -43,6 +44,7 @@ export const authReducer = (state: AuthState, action: Action) => {
 // AuthContextProvider component to provide the user state to the app
 export const AuthContextProvider = ({ children }: ChildrenProps) => {
   const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -55,10 +57,11 @@ export const AuthContextProvider = ({ children }: ChildrenProps) => {
         localStorage.removeItem('user');
       }
     }
+    setLoading(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, dispatch }}>
+    <AuthContext.Provider value={{ ...state, dispatch, loading }}>
       {children}
     </AuthContext.Provider>
   );

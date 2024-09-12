@@ -3,9 +3,11 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App.tsx'
 import ErrorPage from './pages/ErrorPage.tsx';
-import Home from './pages/Home.tsx';
+import Carpool from './pages/Carpool.tsx';
 import Login from './pages/Login.tsx';
 import SignUp from './pages/SignUp.tsx';
+import Home from './pages/Home.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
 import './index.css'
 const router = createBrowserRouter([
   {
@@ -16,6 +18,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "carpool",
+        element: <ProtectedRoute><Carpool /></ProtectedRoute>,
       },
       {
         path: "user",
