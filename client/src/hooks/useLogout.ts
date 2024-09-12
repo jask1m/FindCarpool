@@ -18,7 +18,7 @@ export const useLogout = () => {
       });
       if (response.status === 200) {
         dispatch({ type: 'LOGOUT' });
-        navigate('/user/login');
+        navigate('/');
       }
     } catch (error) {
       console.log('Error logging out:', error);
