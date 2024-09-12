@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { getErrorMessage } from '../utils/helpers';
+import { useForm, type FieldValues } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { TAuthFormSchema, authFormSchema } from '../lib/types';
 
 export default function Login() {
   const { user, dispatch } = useAuthContext();
-  const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<TAuthFormSchema>({
+    resolver: zodResolver(authFormSchema)
+  });
 
   useEffect(() => {
     if (user) {
@@ -19,99 +26,85 @@ export default function Login() {
     }
   }, [user, navigate]);
 
-  const loginUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
+  const onSubmit = async (data: FieldValues) => {
     try {
       const response = await axios.post(
         `${BASE_URL}/user/login`,
-        { email, password },
-        { headers: { 'Content-Type': 'application/json' } }
+        data, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json' }
+      }
       );
 
       const userData = {
         username: response.data.username,
         email: response.data.email,
-        token: response.data.token,
+        accessToken: response.data.accessToken,
       };
 
       localStorage.setItem("user", JSON.stringify(userData));
       dispatch({ type: "LOGIN", payload: userData });
     } catch (error: unknown) {
       const msg = getErrorMessage(error);
-      setError(msg);
-    } finally {
-      setIsLoading(false);
+      setError('root', { type: 'manual', message: msg });
     }
   };
 
   return (
-    <form onSubmit={loginUser}>
-      <div className="bg-black">
-        <div className="flex justify-center container mx-auto my-auto w-[90vw] h-screen items-center flex-col">
-          <div className="text-slate-100 items-center">
-            <div className="text-center pb-1 mb-4">Welcome back!</div>
+    <form onSubmit={handleSubmit(onSubmit)} className="h-[calc(100vh-5rem)] flex items-center justify-center">
+      <div className="w-[90vw] max-w-md flex flex-col items-center">
+        <div className="text-gray-800 items-center mb-4">
+          <div className="text-center text-xl font-bold">Welcome back!</div>
+        </div>
+
+        <div className="w-full flex flex-col items-center bg-white rounded-md shadow-md pt-6 pb-4">
+          <div className="w-3/4 mb-2">
+            <input
+              {...register('email')}
+              type="email"
+              className="w-full py-2 px-4 bg-gray-50 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-400 outline-gray-300 border-solid border-2 border-gray-200"
+              placeholder="Email address"
+            />
+            {errors.email && <p className='text-red-500 text-sm mt-1'>{errors.email.message}</p>}
           </div>
 
-          <div className="w-full md:w-3/4  lg:w-1/2 flex flex-col items-center bg-gray-300 rounded-md pt-6">
-            <div className="w-3/4 mb-2">
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full py-2 px-4 bg-slate-200 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-600 outline-slate-500 border-solid border-2 border-slate-300"
-                placeholder="Email address"
-              />
-            </div>
-
-            <div className="w-3/4 mb-2">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                name="password"
-                id="password"
-                className="w-full py-2 px-4 bg-slate-200 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-600 outline-slate-500  border-solid border-2 border-slate-300"
-                placeholder="Password"
-              />
-            </div>
-
-            <div className="w-3/4 mb-2">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="py-2 bg-black w-full rounded text-blue-50 font-bold hover:bg-blue-700 disabled:bg-gray-500"
-              >
-                {isLoading ? 'Logging in...' : 'LOGIN'}
-              </button>
-            </div>
-
-            {error && (
-              <div className="w-3/4 mb-2">
-                <div
-                  className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-1 text-[15px] "
-                  role="alert"
-                >
-                  <p>{error}</p>
-                </div>
-              </div>
-            )}
+          <div className="w-3/4 mb-2">
+            <input
+              {...register('password')}
+              type="password"
+              className="w-full py-2 px-4 bg-gray-50 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-400 outline-gray-300 border-solid border-2 border-gray-200"
+              placeholder="Password"
+            />
+            {errors.password && <p className='text-red-500 text-sm mt-1'>{errors.password.message}</p>}
           </div>
-          <div className="flex justify-center container mx-auto mt-2 text-slate-100 text-sm">
-            <div className="flex flex-col sm:flex-row  justify-between md:w-1/2 items-center">
-              <div className="flex text-[15px]">Forgot password?</div>
+
+          <div className="w-3/4 mb-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="py-2 bg-blue-600 w-full rounded text-white font-bold hover:bg-blue-700 disabled:bg-gray-400"
+            >
+              {isSubmitting ? 'Logging in...' : 'LOGIN'}
+            </button>
+          </div>
+          {errors.root && (
+            <div className="w-3/4 mb-2">
               <div
-                className="flex text-[15px] hover:text-blue-300 cursor-pointer"
-                onClick={() => navigate("/user/signup")}
+                className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-1 text-[15px]"
+                role="alert"
               >
-                Don't have an account? Get Started.
+                <p>{errors.root.message}</p>
               </div>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-center mt-2 text-gray-700 text-sm">
+          <div className="flex flex-col sm:flex-row justify-between w-full items-center">
+            <div
+              className="text-[15px] hover:text-blue-600 cursor-pointer font-bold"
+              onClick={() => navigate("/user/signup")}
+            >
+              Don't have an account? Get Started.
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose, {Schema} from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: [true, "Your username is required"] },
@@ -7,4 +7,14 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('User', userSchema);
+const refreshTokenSchema = new mongoose.Schema({
+  user: { type: Schema.Types.ObjectId, ref:'User', required: true },
+  refreshToken: { type: String, required: true },
+  expires: { type: Date, required: true },
+});
+
+// export all schemnas
+module.exports = {
+  User: mongoose.model('User', userSchema),
+  RefreshToken: mongoose.model('RefreshToken', refreshTokenSchema),
+};

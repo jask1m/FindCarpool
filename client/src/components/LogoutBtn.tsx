@@ -1,19 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../hooks/useAuthContext';
+import { useLogout } from '../hooks/useLogout';
 
 const LogoutBtn = () => {
-  const { dispatch } = useAuthContext();
-  const navigate = useNavigate();
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    dispatch({ type: 'LOGOUT' });
-    navigate('/user/login');
-  }
-
+  const { logout } = useLogout();
   return (
-    <button 
-      onClick={logout} 
+    <button
+      onClick={logout}
       className="px-4 py-2 text-black hover:bg-gray-100 rounded-full transition duration-300"
     >
       Logout
