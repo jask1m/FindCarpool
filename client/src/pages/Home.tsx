@@ -16,7 +16,9 @@ const Home = () => {
   return (
     <div>
       <h1>Let's get started. Find Carool.</h1>
-      <button onClick={handleClick} className="border border-black">get started.</button>
+      <button type="submit" onClick={handleClick} className="py-2 bg-blue-600 w-32 rounded text-white font-bold hover:bg-blue-700 disabled:bg-gray-400">
+        get started.
+      </button>
     </div>
   )
 }
